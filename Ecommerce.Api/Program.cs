@@ -1,7 +1,8 @@
-﻿using DotNetEnv;
+﻿//using DotNetEnv;
+using Ecommerce.Infrastructure.Legacy;
 using Microsoft.EntityFrameworkCore;
 using System;
-
+using Npgsql;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -13,23 +14,54 @@ builder.Services.AddSwaggerGen();
 //builder.Services.AddDbContext<AddDbContext>(options =>
 //    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 // load .env file
-Env.Load();
+//Env.Load(Path.Combine(Directory.GetCurrentDirectory(), ".env"));
 
-// build connection string từ env
-var host = Environment.GetEnvironmentVariable("DB_HOST");
-var port = Environment.GetEnvironmentVariable("DB_PORT");
-var db = Environment.GetEnvironmentVariable("DB_NAME");
-var user = Environment.GetEnvironmentVariable("DB_USER");
-var pass = Environment.GetEnvironmentVariable("DB_PASSWORD");
+//Console.WriteLine(Directory.GetCurrentDirectory());
 
-var connString =
-    $"Host={host};Port={port};Database={db};Username={user};Password={pass};SSL Mode=Require;Trust Server Certificate=true";
+//// build connection string từ env
+//var host = Environment.GetEnvironmentVariable("DB_HOST");
+//var port = Environment.GetEnvironmentVariable("DB_PORT");
+//var dbName = Environment.GetEnvironmentVariable("DB_NAME");
+//var user = Environment.GetEnvironmentVariable("DB_USER");
+//var pass = Environment.GetEnvironmentVariable("DB_PASSWORD")?.Trim();
 
-//builder.Services.AddDbContext<AppDbContext>(options =>
-//    options.UseNpgsql(connString));
+//Console.WriteLine($"Host: {host}");
+//Console.WriteLine($"DB: {dbName}");
+//Console.WriteLine($"User: {user}");
+//Console.WriteLine($"Password: {pass}");
+
+//var connString =
+//    $"Host={host};Port={port};Database={dbName};Username={user};Password={pass};SSL Mode=Require;Trust Server Certificate=true";
+
+//try
+//{
+//    await using var conn = new NpgsqlConnection(connString);
+
+//    await conn.OpenAsync();
+
+//    Console.WriteLine("CONNECTED SUCCESS");
+//}
+//catch (Exception ex)
+//{
+//    Console.WriteLine(ex.ToString());
+//}
+
+builder.Services.AddDbContext<StoreDbContext>(options =>
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
+
+var connString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+Console.WriteLine(connString);
 
 var app = builder.Build();
 
+//using var scope = app.Services.CreateScope();
+
+//var db = scope.ServiceProvider.GetRequiredService<StoreDbContext>();
+//Console.WriteLine($"Database Connected: {db.Database.CanConnect()}");
+
+//Console.WriteLine($"Products Count: {db.Hanghoas.Count()}");
 // Middleware
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
